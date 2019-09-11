@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include anviz_erpnext_attendance *.css
+recursive-include anviz_erpnext_attendance *.csv
+recursive-include anviz_erpnext_attendance *.html
+recursive-include anviz_erpnext_attendance *.ico
+recursive-include anviz_erpnext_attendance *.js
+recursive-include anviz_erpnext_attendance *.json
+recursive-include anviz_erpnext_attendance *.md
+recursive-include anviz_erpnext_attendance *.png
+recursive-include anviz_erpnext_attendance *.py
+recursive-include anviz_erpnext_attendance *.svg
+recursive-include anviz_erpnext_attendance *.txt
+recursive-exclude anviz_erpnext_attendance *.pyc

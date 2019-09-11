@@ -1,0 +1,71 @@
+{
+ "creation": "2019-09-07 11:28:38.143654",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "server",
+  "port",
+  "user",
+  "password",
+  "database"
+ ],
+ "fields": [
+  {
+   "fieldname": "server",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Server",
+   "reqd": 1
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Password",
+   "reqd": 1
+  },
+  {
+   "fieldname": "database",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Database",
+   "reqd": 1
+  }
+ ],
+ "issingle": 1,
+ "modified": "2019-09-07 11:30:32.451014",
+ "modified_by": "Administrator",
+ "module": "Anviz Erpnext Attendance",
+ "name": "Anviz Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
