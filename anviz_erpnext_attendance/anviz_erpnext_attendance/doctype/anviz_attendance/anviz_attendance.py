@@ -17,68 +17,131 @@ class AnvizAttendance(Document):
 		self.generate_attendance()
 	
 	def generate_attendance(self):
-		employee_doc = frappe.get_doc('Employee',self.employee)
-		if self.fetch_all == 0:
+		if self.fetch_all == 0 and self.department != 'All Departments':
+			if(self.employee):
+				employee_doc = frappe.get_doc('Employee',self.employee)
+			else:	# Validating Employee Value
+				frappe.throw('Please select employee')
+			# Setting Database Parameters
 			anviz = frappe.get_single('Anviz Setting')
 			server = str(anviz.server)
 			user = str(anviz.user)
 			password = str(anviz.password)
 			port = str(anviz.port)
 			database = str(anviz.database)
+			# Connecting to Database
 			conn = pymssql.connect(server, user, password, database,port=port)
 			cursor = conn.cursor()
+			# Running SQL query 
 			cursor.execute(
-				"SELECT TOP 100 [Logid],[Userid],[CheckTime],[CheckType],\
-								[Sensorid],[WorkType],[AttFlag],[Checked],\
-								[Exported],[OpenDoorFlag] \
+				'''SELECT TOP 100000 [logid],[Userid],[CheckTime],[CheckType] \
 								FROM dbo.Checkinout \
 								WHERE Userid = {0} AND CheckTime >= '{1} 00:00:00.000' AND CheckTime <= '{2} 23:59:59.000' \
-								ORDER BY CheckTime ASC".format(self.attendance_device_id,self.from_date,self.to_date)
+								ORDER BY CheckTime ASC'''.format(self.attendance_device_id,self.from_date,self.to_date)
 			)
-			row = cursor.fetchone()
-			row_date = ''
-			row_in_time = ''
-			row_out_time = ''
-			row_last_date = None
-			while row:
-				row_next_date = parse_date(row[2])
-				if row_next_date!=row_date and row[3]==0:
-					#if row_date != '':
-						#frappe.msgprint('date: {0}, intime: {1}, outtime: {2}'.format(row_date,row_in_time,row_out_time))
-					attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_next_date},fields = '*')
+			row = cursor.fetchall()
+			last_date = None
+			# Looping through query results
+			for i in row:
+				user_id = i[1]
+				row_date = parse_date(i[2])
+				row_time = parse_time(i[2])
+				# For Entry
+				if i[3] == 0 and row_date!=last_date:
+					attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':self.attendance_device_id})
 					if not attendance_list:
+						# Creating new attendance doc
 						new_att = frappe.new_doc('Attendance')
 						new_att.update({
 							'employee':self.employee,
 							'attendance_device_id': self.attendance_device_id,
-							'attendance_date': row_next_date,
+							'attendance_date': row_date,
 							'status': 'Present',
+							'in_time': row_time,
+							'out_time': '',
 							'shift': employee_doc.default_shift
 						})
 						new_att.save()
 						new_att.submit()
-					
-					row_in_time = parse_time(row[2])
-					row_date = row_next_date
-					row_out_time = ''
-				elif row_next_date==row_date and row[3]==1:
-					row_out_time = parse_time(row[2])
-
-				row = cursor.fetchone()
-
+				# For Exit
+				elif i[3] == 1 and row_date==last_date:
+					attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':self.attendance_device_id})
+					if attendance_list:
+						#  Updating already created attendance doc
+						frappe.db.set_value('Attendance',attendance_list[0].name,'out_time',row_time)
+				last_date = row_date
 			conn.close()
 		else:
-			frappe.throw('fetch all')
+			if self.department:
+				employee_list = None
+				# Getting active employee list
+				if self.department == 'All Departments':
+					employee_list = frappe.get_list('Employee',filters= {'status':'Active'},page_length= 100000)
+				else:	
+					employee_list = frappe.get_list('Employee',filters= {'status':'Active','department':self.department},page_length= 100000)
+				# Setting database parameters
+				anviz = frappe.get_single('Anviz Setting')							
+				server = str(anviz.server)
+				user = str(anviz.user)
+				password = str(anviz.password)
+				port = str(anviz.port)
+				database = str(anviz.database)
+				for i in employee_list:
+					employee_doc = frappe.get_doc('Employee',i.name)					# Getting employee doc
+					conn = pymssql.connect(server, user, password, database,port=port)	# Connecting to Database
+					cursor = conn.cursor()
+					# Executing SQL query
+					cursor.execute(
+						'''SELECT TOP 100000 [logid],[Userid],[CheckTime],[CheckType] \
+										FROM dbo.Checkinout \
+										WHERE Userid = {0} AND CheckTime >= '{1} 00:00:00.000' AND CheckTime <= '{2} 23:59:59.000' \
+										ORDER BY CheckTime ASC'''.format(employee_doc.attendance_device_id,self.from_date,self.to_date)
+					)
+					row = cursor.fetchall()
+					last_date = None
+					# Looping throw the query results
+					for i in row:
+						user_id = i[1]
+						row_date = parse_date(i[2])
+						row_time = parse_time(i[2])
+						# For Entry
+						if i[3] == 0 and row_date!=last_date:
+							attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':employee_doc.attendance_device_id})
+							if not attendance_list:
+								# Creating new attendance doc
+								new_att = frappe.new_doc('Attendance')
+								new_att.update({
+									'employee':employee_doc.name,
+									'attendance_device_id': employee_doc.attendance_device_id,
+									'attendance_date': row_date,
+									'status': 'Present',
+									'in_time': row_time,
+									'out_time': '',
+									'shift': employee_doc.default_shift
+								})
+								new_att.save()
+								new_att.submit()
+						# For Exit
+						elif i[3] == 1 and row_date==last_date:
+							attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':employee_doc.attendance_device_id})
+							# Updating already created attendance doc
+							if attendance_list:
+								frappe.db.set_value('Attendance',attendance_list[0].name,'out_time',row_time)
+						last_date = row_date
+					conn.close()
 
+# Function for Date
 def parse_date(datetime):
 	datetime = str(datetime)
 	date = datetime[:10]
 	return date
-
+# Function for Time
 def parse_time(datetime):
 	datetime = str(datetime)
 	time = datetime[11:]
 	return time
+
+# Methods to be called from JS	
 @frappe.whitelist()
 def get_employee_details(employee):
 	employee_doc = frappe.get_doc('Employee',employee)

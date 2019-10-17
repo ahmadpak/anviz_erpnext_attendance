@@ -19,8 +19,8 @@ frappe.ui.form.on('Anviz Attendance', {
 				filters: {
 					'department': cur_frm.doc.department
 				}
-			}
-		})
+			};
+		});
 	 },
 	 employee: function(frm){
 		 var doc = cur_frm.doc;
@@ -30,13 +30,13 @@ frappe.ui.form.on('Anviz Attendance', {
 				 employee:doc.employee
 			 },
 			 callback: function(r){
-				 xdoc.employee_name = r.message.employee_name;
+				 doc.employee_name = r.message.employee_name;
 				 doc.attendance_device_id = r.message.attendance_device_id;
 				 cur_frm.refresh_field('employee_name');
 				 cur_frm.refresh_field('attendance_device_id');
 				 
 			 }
-		 })
+		 });
 	 },
 	 from_date: function(frm){
 		 var doc = cur_frm.doc;

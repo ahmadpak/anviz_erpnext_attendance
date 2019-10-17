@@ -37,6 +37,17 @@ doctype_js = {
         ]
 }
 
+fixtures = [{
+    'dt': 'Custom Field', 'filters': [
+        [
+            'name','in',[
+                'Attendance-in_time',
+                'Attendance-out_time'
+            ]
+        ]
+    ]
+}]
+
 # Home Pages
 # ----------
 
