@@ -41,6 +41,7 @@ fixtures = [{
     'dt': 'Custom Field', 'filters': [
         [
             'name','in',[
+                'Attendance-attendance_device_id',
                 'Attendance-in_time',
                 'Attendance-out_time'
             ]
