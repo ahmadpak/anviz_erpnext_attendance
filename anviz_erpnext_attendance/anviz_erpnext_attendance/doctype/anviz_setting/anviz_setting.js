@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Anviz Setting', {
-	// refresh: function(frm) {
-
-	// }
+	get_employees: function(frm) {
+		frm.save();
+	}
 });

@@ -8,7 +8,8 @@
   "port",
   "user",
   "password",
-  "database"
+  "database",
+  "get_employees"
  ],
  "fields": [
   {
@@ -44,10 +45,15 @@
    "in_list_view": 1,
    "label": "Database",
    "reqd": 1
+  },
+  {
+   "fieldname": "get_employees",
+   "fieldtype": "Button",
+   "label": "Get Employees"
   }
  ],
  "issingle": 1,
- "modified": "2019-09-07 11:30:32.451014",
+ "modified": "2020-01-14 13:14:09.995398",
  "modified_by": "Administrator",
  "module": "Anviz Erpnext Attendance",
  "name": "Anviz Setting",
