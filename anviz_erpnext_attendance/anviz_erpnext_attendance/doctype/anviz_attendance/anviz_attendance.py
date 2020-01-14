@@ -42,12 +42,11 @@ class AnvizAttendance(Document):
 			row = cursor.fetchall()
 			last_date = None
 			# Looping through query results
-			for i in row:
-				user_id = i[1]
-				row_date = parse_date(i[2])
-				row_time = parse_time(i[2])
+			for att in row:
+				row_date = parse_date(att[2])
+				row_time = parse_time(att[2])
 				# For Entry
-				if i[3] == 0 and row_date!=last_date:
+				if row_date!=last_date:
 					attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':self.attendance_device_id})
 					if not attendance_list:
 						# Creating new attendance doc
@@ -64,7 +63,7 @@ class AnvizAttendance(Document):
 						new_att.save()
 						new_att.submit()
 				# For Exit
-				elif i[3] == 1 and row_date==last_date:
+				elif row_date==last_date:
 					attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':self.attendance_device_id})
 					if attendance_list:
 						#  Updating already created attendance doc
@@ -86,8 +85,8 @@ class AnvizAttendance(Document):
 				password = str(anviz.password)
 				port = str(anviz.port)
 				database = str(anviz.database)
-				for i in employee_list:
-					employee_doc = frappe.get_doc('Employee',i.name)					# Getting employee doc
+				for employee in employee_list:
+					employee_doc = frappe.get_doc('Employee',employee.name)					# Getting employee doc
 					conn = pymssql.connect(server, user, password, database,port=port)	# Connecting to Database
 					cursor = conn.cursor()
 					# Executing SQL query
@@ -100,12 +99,11 @@ class AnvizAttendance(Document):
 					row = cursor.fetchall()
 					last_date = None
 					# Looping throw the query results
-					for i in row:
-						user_id = i[1]
-						row_date = parse_date(i[2])
-						row_time = parse_time(i[2])
+					for att in row:
+						row_date = parse_date(att[2])
+						row_time = parse_time(att[2])
 						# For Entry
-						if i[3] == 0 and row_date!=last_date:
+						if row_date!=last_date:
 							attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':employee_doc.attendance_device_id})
 							if not attendance_list:
 								# Creating new attendance doc
@@ -122,7 +120,7 @@ class AnvizAttendance(Document):
 								new_att.save()
 								new_att.submit()
 						# For Exit
-						elif i[3] == 1 and row_date==last_date:
+						elif row_date==last_date:
 							attendance_list = frappe.get_list('Attendance',filters= {'attendance_date':row_date,'attendance_device_id':employee_doc.attendance_device_id})
 							# Updating already created attendance doc
 							if attendance_list:
