@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2019, Havenir and contributors
 # For license information, please see license.txt
-
+# TODO Migrate app to use pyodbc instead of pymssql
 from __future__ import unicode_literals
 import frappe
 import pymssql
